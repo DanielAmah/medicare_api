@@ -19,10 +19,10 @@ ActiveRecord::Base.connection.reset_pk_sequence!('invoice_items')
 # ActiveRecord::Base.connection.reset_pk_sequence!('services')
 
 # # Create some users
-# user1 = User.create!(name: 'John Peter', email: 'johnpeter@example.com', title: 'Mr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'admin',
-#                      phone: '+1234567890')
-# user2 = User.create!(name: 'Jane Smith', email: 'janesmith@example.com', title: 'Dr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'doctor',
-#                      phone: '+0987654321')
+user1 = User.create!(name: 'John Peter', email: 'johnpeter@example.com', title: 'Mr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'admin',
+                     phone: '+1234567890')
+user2 = User.create!(name: 'Jane Smith', email: 'janesmith@example.com', title: 'Dr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'doctor',
+                     phone: '+0987654321')
 
 # # Create some patients
 # patient1 = Patient.create!(name: 'Alice Johnson', phone: '+18001234567', user: user2)
