@@ -78,7 +78,7 @@ NUMBER_OF_PATIENTS.times do |_i|
     name: Faker::Name.name,
     phone: Faker::PhoneNumber.cell_phone_in_e164,
     email: Faker::Internet.email,
-    user_id: 3, # Assuming each patient is associated with a user
+    user_id: User.where(role: 'doctor').pluck(:id).sample, # Assuming each patient is associated with a user
     age: rand(18..100),
     gender: %w[Male Female Other].sample,
     blood_type: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].sample
@@ -109,7 +109,7 @@ service_ids = Service.pluck(:id)
 
   appointment = Appointment.create!(
     patient_id: rand(1..number_of_patients),
-    user_id: 3,
+    user_id: User.where(role: 'doctor').pluck(:id).sample,
     service_id: service_ids.sample,
     start_time:,
     end_time:,
