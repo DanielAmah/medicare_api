@@ -1,7 +1,11 @@
 class User < ApplicationRecord
   has_secure_password
-  has_many :patients, dependent: :destroy
+  # has_many :patients, dependent: :destroy
+  # has_many :appointments, dependent: :destroy
+
   has_many :appointments, dependent: :destroy
+  has_many :patients, through: :appointments
+
   has_one_attached :profile_image, dependent: :destroy
 
   validates :name, presence: true

@@ -1,5 +1,5 @@
 class PatientsController < ApplicationController
-  skip_before_action :authenticate_request
+  # skip_before_action :authenticate_request
   before_action :set_patient, only: %i[show destroy]
 
   def create
@@ -10,6 +10,7 @@ class PatientsController < ApplicationController
     @patient.phone = patient_params[:phone]
     @patient.age = patient_params[:age]
     @patient.gender = patient_params[:gender]
+    @patient.user_id = @current_user.id
     @patient.blood_type = patient_params[:type]
     @patient.profile_image.attach(patient_params[:profile_image])
 
@@ -22,8 +23,8 @@ class PatientsController < ApplicationController
   end
 
   def index
-    patients = Patient.includes(:appointments)
-                      .order(created_at: :desc)
+    patients = model.includes(:appointments)
+                    .order(created_at: :desc)
 
     render json: patients.map { |patient| format_patient(patient) }
   end
@@ -51,21 +52,21 @@ class PatientsController < ApplicationController
       {
         id: 1,
         title: 'Today Patients',
-        value: Patient.where(created_at: Time.zone.now.all_day).count.to_s,
+        value: model.where(created_at: Time.zone.now.all_day).count.to_s,
         color: %w[bg-subMain text-subMain],
         icon: 'BiTime'
       },
       {
         id: 2,
         title: 'Monthly Patients',
-        value: Patient.where(created_at: Time.zone.now.all_month).count.to_s,
+        value: model.where(created_at: Time.zone.now.all_month).count.to_s,
         color: %w[bg-orange-500 text-orange-500],
         icon: 'BsCalendarMonth'
       },
       {
         id: 3,
         title: 'Yearly Patients',
-        value: Patient.where(created_at: Time.zone.now.all_year).count.to_s,
+        value: model.where(created_at: Time.zone.now.all_year).count.to_s,
         color: %w[bg-green-500 text-green-500],
         icon: 'MdOutlineCalendarMonth'
       }
@@ -73,21 +74,25 @@ class PatientsController < ApplicationController
   end
 
   def recent
-    recent_patients = Patient.includes(:appointments)
-                             .order(created_at: :desc)
-                             .limit(5) # or any number you prefer
+    recent_patients = model.includes(:appointments)
+                           .order(created_at: :desc)
+                           .limit(5) # or any number you prefer
 
     render json: recent_patients.map { |patient| format_patient(patient) }
   end
 
   private
 
+  def model
+    @model ||= @current_user.admin? ? Patient : Patient.where(user_id: @current_user.id)
+  end
+
   def format_transaction(transaction)
     {
       id: transaction.id,
       user: format_user(transaction.patient, 'patient'),
       date: transaction.created_at.strftime('%b %d, %Y'),
-      amount: (transaction.amount / 100),
+      amount: transaction.amount,
       status: transaction.status,
       method: transaction.payment_method,
       doctor: format_user(transaction.patient.user, 'doctor')
@@ -188,7 +193,6 @@ class PatientsController < ApplicationController
   end
 
   def format_patient(patient)
-
     {
       id: patient.id,
       title: patient.name,

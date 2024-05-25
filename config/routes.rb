@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-  resources :users, only: %i[create index show destroy]
+  resources :users, only: %i[create index show destroy update]
   resource :users, only: [] do
     post 'create_doctor', on: :collection
   end
@@ -26,6 +26,6 @@ Rails.application.routes.draw do
     get 'today', on: :collection
   end
   resources :appointments, only: %i[create]
-  resources :invoices, only: %i[index]
+  resources :invoices, only: %i[index create]
   resources :services, only: %i[index]
 end

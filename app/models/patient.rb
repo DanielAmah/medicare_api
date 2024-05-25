@@ -1,6 +1,9 @@
 class Patient < ApplicationRecord
   belongs_to :user, optional: true
+  # has_many :appointments, dependent: :destroy
   has_many :appointments, dependent: :destroy
+  has_many :users, through: :appointments
+
   has_many :transactions, dependent: :destroy
   has_many :invoices, dependent: :destroy
 
