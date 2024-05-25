@@ -9,7 +9,12 @@ class SessionsController < ApplicationController
       render json: {
         message: 'Logged in successfully',
         token:,
-        exp: 24.hours.from_now.to_i
+        exp: 24.hours.from_now.to_i,
+        is_admin: user.admin?,
+        name: user.name,
+        title: user.title,
+        id: user.id,
+        profile: user.profile_image_url
       }, status: :ok
     else
       # Authentication failed

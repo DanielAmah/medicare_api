@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
-  skip_before_action :authenticate_request
-  before_action :set_doctor, only: %i[show destroy]
+  skip_before_action :authenticate_request, only: %i[create create_doctor]
+  before_action :set_doctor, only: %i[show destroy update]
 
   def index
     doctors = User.where(role: 'doctor')
@@ -13,7 +13,11 @@ class UsersController < ApplicationController
       }
     end
 
-    render json: formatted_doctors
+    if @current_user.admin?
+      render json: formatted_doctors
+    else
+      render json: []
+    end
   end
 
   def destroy
@@ -34,6 +38,20 @@ class UsersController < ApplicationController
                   serialize_invoice(invoice)
                 end
     }
+  end
+
+  def update
+    @user.name = user_params[:name]
+    @user.email = user_params[:email]
+    @user.title = 'Dr.'
+    @user.phone = user_params[:phone]
+    @user.profile_image.attach(user_params[:profile_image]) if user_params[:profile_image]
+    if @user.save
+      render json: { status: 'success', message: 'Doctor successfully updated!', data: @user }, status: :created
+    else
+      render json: { status: 'error', message: 'Failed to update doctor.', errors: @user.errors.full_messages },
+             status: :unprocessable_entity
+    end
   end
 
   def serialize_invoice(invoice)
@@ -110,24 +128,26 @@ class UsersController < ApplicationController
 
   def create_doctor
     @doctor = User.new
+
     @doctor.name = user_params[:name]
     @doctor.email = user_params[:email]
-    @doctor.password = user_params[:password]
-    @doctor.password_confirmation = user_params[:password]
+    @doctor.password = params[:password]
+    @doctor.password_confirmation = params[:password]
     @doctor.phone = user_params[:phone]
     @doctor.role = 'doctor' # Set role as 'doctor'
     @doctor.title = user_params[:title]
 
-    @doctor.profile_image.attach(user_params[:profile_image])
-    @doctor.patient_permissions = calculate_permissions(user_params[:access][:patient])
-    @doctor.appointment_permissions = calculate_permissions(user_params[:access][:appointment])
-    @doctor.invoice_permissions = calculate_permissions(user_params[:access][:invoices])
-    @doctor.payment_permissions = calculate_permissions(user_params[:access][:payments])
+    @doctor.profile_image.attach(user_params[:profile_image]) if user_params[:profile_image]
+    if user_params[:access]
+      @doctor.patient_permissions = calculate_permissions(user_params[:access][:patient])
+      @doctor.appointment_permissions = calculate_permissions(user_params[:access][:appointment])
+      @doctor.invoice_permissions = calculate_permissions(user_params[:access][:invoices])
+      @doctor.payment_permissions = calculate_permissions(user_params[:access][:payments])
+    end
 
     if @doctor.save
       render json: { status: 'success', message: 'Doctor successfully added.', data: @doctor }, status: :created
     else
-
       render json: { status: 'error', message: 'Failed to create doctor.', errors: @doctor.errors.full_messages },
              status: :unprocessable_entity
     end
@@ -224,7 +244,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    # binding.pry
     params.require(:user).permit(:name, :email, :password, :password_confirmation, :role, :title, :phone, :password, :password_confirmation,
                                  :profile_image, access: {})
   end

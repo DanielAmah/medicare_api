@@ -1,23 +1,23 @@
 class AppointmentsController < ApplicationController
-  skip_before_action :authenticate_request
+  # skip_before_action :authenticate_request
 
   def index
-    appointments = Appointment.includes(:user, :service).all
+    appointments = model.includes(:user, :service).all
     render json: appointments.map { |appointment| format_appointment(appointment) }
   end
 
   def today
     today = Date.current
-    appointments_today = Appointment.includes(:user, :service)
-                                    .where('start_time >= ? AND start_time <= ?', today.beginning_of_day, today.end_of_day)
+    appointments_today = model.includes(:user, :service)
+                              .where('start_time >= ? AND start_time <= ?', today.beginning_of_day, today.end_of_day)
     render json: appointments_today.map { |appointment| format_appointment(appointment) }
   end
 
   def create
     appointment = Appointment.new(appointment_params)
+    appointment.user_id = @current_user.id
     appointment.communication_preferences = generate_communication_bitmask(params[:communication_preferences])
-    patient = Patient.find(appointment_params[:patient_id])
-    patient.update(user_id: appointment_params[:user_id])
+
     if appointment.save
       render json: appointment, status: :created
     else
@@ -26,7 +26,7 @@ class AppointmentsController < ApplicationController
   end
 
   def total
-    appointments = Appointment.includes(:user, :patient).all
+    appointments = model.includes(:user, :patient).all
     formatted_appointments = appointments.map do |appointment|
       format_appointment(appointment)
     end
@@ -34,6 +34,10 @@ class AppointmentsController < ApplicationController
   end
 
   private
+
+  def model
+    @model ||= @current_user.admin? ? Appointment : Appointment.joins(:patient).where(patients: { user_id: @current_user.id })
+  end
 
   def appointment_params
     params.require(:appointment).permit(:patient_id, :user_id, :service_id, :start_time, :end_time, :status, :purpose,
@@ -59,7 +63,7 @@ class AppointmentsController < ApplicationController
       service: {
         id: appointment.service.id,
         name: appointment.service.name,
-        price: (appointment.service.price / 100),
+        price: (appointment.service.price),
         date: appointment.service.created_at.strftime('%d %B, %Y'),
         status: appointment.service.active?
       },

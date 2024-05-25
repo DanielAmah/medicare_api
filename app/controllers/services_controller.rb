@@ -1,5 +1,5 @@
 class ServicesController < ApplicationController
-  skip_before_action :authenticate_request
+  # skip_before_action :authenticate_request
 
   def index
     @services = Service.all
@@ -13,10 +13,9 @@ class ServicesController < ApplicationController
       id: service.id,
       name: service.name,
       description: service.description,
-      date: service.created_at,
-      price: service.price / 100,
+      date: service.created_at.strftime('%d %B, %Y'),
+      price: service.price,
       status: service.active
     }
   end
 end
-
