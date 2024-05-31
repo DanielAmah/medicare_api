@@ -3,7 +3,6 @@ class Appointment < ApplicationRecord
   belongs_to :patient
   belongs_to :user
   belongs_to :service
-  
 
   validates :start_time, :end_time, :status, :purpose, presence: true
   validates :status, presence: true,
@@ -24,9 +23,9 @@ class Appointment < ApplicationRecord
   }
 
   def update_status
-    return unless start_time.past? && !%w[completed canceled].include?(status)
+    return unless start_time.past? && !%w[Completed Canceled].include?(status)
 
-    self.status = 'late'
+    self.status = 'Completed'
     save
   end
 
@@ -51,9 +50,9 @@ class Appointment < ApplicationRecord
 
   def set_initial_status
     if start_time.future?
-      self.status ||= 'pending'  # Default to pending if no status is set and the appointment is in the future
+      self.status ||= 'Pending'
     elsif start_time.past? && end_time.future?
-      self.status = 'late'       # Mark as late if the start time is in the past but it's not yet completed or canceled
+      self.status ||= 'Completed'
     end
   end
 end
