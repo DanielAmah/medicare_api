@@ -27,7 +27,7 @@ class DashboardsController < ApplicationController
     # Ensure all months are represented in the data
     monthly_totals = (1..12).map do |month|
       month_name = Date.new(Date.today.year, month, 1).strftime('%B')
-      earnings_by_month[month_name].to_i || 0
+      earnings_by_month[month_name].to_i / 100 || 0
     end
 
     render json: monthly_totals
@@ -56,7 +56,7 @@ class DashboardsController < ApplicationController
     data = model.group_by_month(:created_at, range: start_date..end_date, series: true)
     data = sum_column ? data.sum(sum_column) : data.count
     months_range = generate_full_year_months(start_date, end_date)
-    months_range.map { |month| data[month] || 0 }
+    months_range.map { |month| data[month] / 100 || 0 }
   end
 
   def generate_full_year_months(start_date, end_date)

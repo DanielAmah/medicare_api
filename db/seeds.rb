@@ -6,70 +6,25 @@ Appointment.destroy_all
 Patient.destroy_all
 InvoiceItem.destroy_all
 Invoice.destroy_all
-# Service.destroy_all
-# User.destroy_all
+Service.destroy_all
+User.destroy_all
 
 # Reset primary keys
 ActiveRecord::Base.connection.reset_pk_sequence!('transactions')
-# ActiveRecord::Base.connection.reset_pk_sequence!('users')
+ActiveRecord::Base.connection.reset_pk_sequence!('users')
 ActiveRecord::Base.connection.reset_pk_sequence!('patients')
 ActiveRecord::Base.connection.reset_pk_sequence!('appointments')
 ActiveRecord::Base.connection.reset_pk_sequence!('invoices')
 ActiveRecord::Base.connection.reset_pk_sequence!('invoice_items')
-# ActiveRecord::Base.connection.reset_pk_sequence!('services')
+ActiveRecord::Base.connection.reset_pk_sequence!('services')
 
-# # Create some users
-# user1 = User.create!(name: 'John Peter', email: 'johnpeter@example.com', title: 'Mr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'admin',
-#                      phone: '+1234567890')
-# user2 = User.create!(name: 'Jane Smith', email: 'janesmith@example.com', title: 'Dr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'doctor',
-#                      phone: '+0987654321')
-
-# # Create some patients
-# patient1 = Patient.create!(name: 'Alice Johnson', phone: '+18001234567', user: user2)
-# patient2 = Patient.create!(name: 'Bob Brown', phone: '+18007654321', user: user2)
-
-# # Create services
-# service1 = Service.create!(name: 'Medical Consultation',
-#                            description: 'A general medical consultation to discuss symptoms and issues.', price: 1500000, active: true)
-# service2 = Service.create!(name: 'Dental Cleaning', description: 'Professional dental cleaning services.', price: 500000, active: true)
-
-# # Create some appointments
-# appointment1 = Appointment.create!(patient: patient1, user: user1, service: service1, status: 'confirmed',
-#                                    start_time: DateTime.now + 1.day, end_time: DateTime.now + 1.day + 2.hours, purpose: 'Checkup', description: 'Annual medical checkup')
-# appointment2 = Appointment.create!(patient: patient2, user: user1, service: service2, status: 'pending',
-#                                    start_time: DateTime.now + 3.days, end_time: DateTime.now + 3.days + 2.hours, purpose: 'Consultation', description: 'Consultation on symptoms')
-
-# # Create invoices
-# invoice1 = Invoice.create!(user: user1, start_date: Date.today, end_date: Date.today + 7.days, subtotal: 100_000,
-#                            discount: 5000, tax_rate: 5, total: 95_000, notes: 'Thank you for your visit.')
-
-# # Create invoice items
-# InvoiceItem.create!(invoice: invoice1, item_name: 'Medical Implants', price: 50_000, quantity: 1, total: 50_000)
-# InvoiceItem.create!(invoice: invoice1, item_name: 'Medical Crowns', price: 25_000, quantity: 2, total: 50_000)
-
-# # Create services
-
-# # Adjustments to existing invoice items (if they use services)
-# InvoiceItem.find_each do |item|
-#   case item.item_name
-#   when 'Medical Implants'
-#     item.update(invoice: Invoice.first, item_name: service1.name, price: 190_000, quantity: 1, total: 190_000) # Using first invoice and service as an example
-#   when 'Medical Crowns'
-#     item.update(invoice: Invoice.first, item_name: service2.name, price: 150_000, quantity: 2, total: 300_000)
-#   end
-# end
-
-# 10.times do |i|
-#   Transaction.create!(
-#     patient: [patient1, patient2].sample,
-#     amount: [100_000, 200_000, 150_000, 230_000, 12_000, 140_000, 123_000].sample,
-#     status: %w[Paid Pending Cancelled].sample,
-#     payment_method: %w[Cash CreditCard Insurance].sample,
-#     created_at: (DateTime.now - i.days)
-#   )
-# end
-
-# db/seeds.rb
+# Create some users
+user1 = User.create!(name: 'John Peter', email: 'johnpeter@gmail.com', title: 'Mr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'admin',
+                     phone: '+1234567890')
+user2 = User.create!(name: 'Jane Smith', email: 'janesmith@gmail.com', title: 'Dr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'doctor',
+                     phone: '+0987654321')
+user3 = User.create!(name: 'Bryce Aron', email: 'brycearon@gmail.com', title: 'Dr.', password: 'Password123!', password_confirmation: 'Password123!', role: 'doctor',
+                     phone: '+0987654321')
 
 NUMBER_OF_PATIENTS = 40
 number_of_users = User.where(role: 'doctor').count
@@ -99,13 +54,27 @@ number_of_patients = Patient.count
 #   )
 # end
 
+service1 = Service.create!(name: 'Laboratory Services',
+                           description: 'Blood tests, urinalysis, and other lab tests to help diagnose and monitor diseases.', price: 150_000, active: true)
+service2 = Service.create!(name: 'Pathology',
+                           description: 'Examination of tissues, cells, and organs to diagnose diseases', price: 3_000_000, active: true)
+service3 = Service.create!(name: 'General Surgery',
+                           description: 'Surgical procedures on various parts of the body, including the abdomen, skin, and soft tissues.', price: 7_500_000, active: true)
+service4 = Service.create!(name: 'Cardiology',
+                           description: 'Diagnosis and treatment of heart diseases and conditions.', price: 9_500_000, active: true)
+service5 = Service.create!(name: 'Psychiatry',
+                           description: 'Medical treatment for mental health disorders, including medication management.', price: 5_700_000, active: true)
+service6 = Service.create!(name: 'Counseling Services',
+                           description: 'Individual, family, and group therapy sessions to support mental health.', price: 5_700_000, active: true)
+
 # Fetch all service IDs once created
 service_ids = Service.pluck(:id)
 
 # Create Appointments and Invoices spread across the current month
-(1..40).each do |i|
-  start_time = Faker::Time.between(from: DateTime.now.beginning_of_month, to: DateTime.now.end_of_month)
-  end_time = start_time + [30.minutes, 1.hour, 1.5.hours].sample
+(1..50).each do |i|
+  created_time = rand(DateTime.now.beginning_of_year..DateTime.now)
+  start_time = created_time
+  end_time = start_time + [30.minutes, 1.hour, 1.5.hours, 2.hours].sample
 
   appointment = Appointment.create!(
     patient_id: rand(1..number_of_patients),
@@ -116,18 +85,22 @@ service_ids = Service.pluck(:id)
     status: %w[Pending Confirmed Completed Approved Cancelled].sample,
     purpose: "Purpose of visit #{i}",
     description: Faker::Lorem.sentence,
-    communication_preferences: %w[email sms].sample
+    communication_preferences: %w[email sms].sample,
+    created_at: created_time,
+    updated_at: created_time
   )
 
   invoice = Invoice.create!(
     start_date: start_time.to_date,
     end_date: end_time.to_date,
     subtotal: 0,
-    discount: [0, 5, 10, 15, 20].sample,
+    discount: [0, 5000, 10000, 15000, 20000].sample,
     tax_rate: 0.07,
     total: 0,
     patient_id: appointment.patient_id,
-    notes: "Invoice for Appointment #{i}"
+    notes: "Invoice for Appointment #{i}",
+    created_at: created_time,
+    updated_at: created_time
   )
 
   # Create InvoiceItems related to the invoice
@@ -140,22 +113,23 @@ service_ids = Service.pluck(:id)
     InvoiceItem.create!(
       invoice_id: invoice.id,
       service_id:,
-      quantity:
+      quantity:,
+      created_at: created_time,
+      updated_at: created_time
     )
     invoice.subtotal += subtotal
   end
 
   invoice.total = (invoice.subtotal - invoice.discount) * (1 + invoice.tax_rate)
   invoice.save!
-end
 
-# Create Transactions for each patient
-50.times do
   Transaction.create!(
-    amount: Faker::Commerce.price(range: 1_000_000.0..10_000_000.0),
-    patient_id: rand(1..number_of_patients),
+    amount: invoice.total,
+    patient_id: appointment.patient_id,
     status: %w[Paid Pending Cancelled].sample,
-    payment_method: %w[Cash CreditCard Insurance].sample
+    payment_method: %w[Cash CreditCard Insurance].sample,
+    created_at: created_time,
+    updated_at: created_time
   )
 end
 
