@@ -11,21 +11,21 @@ class TransactionsController < ApplicationController
       {
         id: 1,
         title: 'Today Payments',
-        value: (model.where(created_at: today.all_day).sum(:amount).to_i).to_s(:delimited),
+        value: (model.where(created_at: today.all_day).sum(:amount).to_i),
         color: %w[bg-subMain text-subMain],
         icon: 'BiTime'
       },
       {
         id: 2,
         title: 'Monthly Payments',
-        value: (model.where(created_at: this_month).sum(:amount).to_i).to_s(:delimited),
+        value: (model.where(created_at: this_month).sum(:amount).to_i),
         color: %w[bg-orange-500 text-orange-500],
         icon: 'BsCalendarMonth'
       },
       {
         id: 3,
         title: 'Yearly Payments',
-        value: (model.where(created_at: this_year).sum(:amount).to_i).to_s(:delimited),
+        value: (model.where(created_at: this_year).sum(:amount).to_i),
         color: %w[bg-green-500 text-green-500],
         icon: 'MdOutlineCalendarMonth'
       }
